@@ -3,7 +3,8 @@ import { Divider } from '@material-ui/core';
 import AppBar from './appbar'
 import Menu from './menu'
 import MenuContext from './menucontext';
-import {useState} from 'react';
+import { useState } from 'react';
+
 const useStyles = makeStyles((theme) => ({
     root: {
         display: 'flex',
@@ -15,23 +16,24 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-
-export default function Layout({children}) {
+export default function Layout({ children }) {
     const classes = useStyles();
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [search, setSearch] = useState({})
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
-    
+
     const menu = {
         mobileOpen,
         handleDrawerToggle,
     }
+
     return (
         <MenuContext.Provider value={menu}>
             <div className={classes.root}>
-                <AppBar/>
+                <AppBar />
                 <Menu />
                 <main className={classes.content}>
                     <div className={classes.toolbar} />

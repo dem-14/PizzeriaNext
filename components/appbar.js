@@ -5,6 +5,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles } from '@material-ui/core/styles';
 import { drawerWidth } from './menu'
 import User from '../components/user'
+import Search from './search'
 
 import { useContext } from 'react'
 import MenuContext from './menucontext';
@@ -35,6 +36,7 @@ export default function appBar() {
                 >
                     <MenuIcon />
                 </IconButton>
+                <Search></Search>
                 <User></User>
             </Toolbar>
         </AppBar>

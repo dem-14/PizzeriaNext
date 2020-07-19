@@ -1,15 +1,14 @@
 const { check } = require('express-validator');
 const validator = require('./validator');
-const ingredientValidator = [
+const pizzaValidator = [
     check('name').isLength({ min: 1, max: 50 }),
-    check('price').isDecimal(), //TODO min max
 ]
 
-const INGREDIENTVALIDATORREGISTER = [
-    ...ingredientValidator,
+const PIZZAVALIDATOR = [
+    ...pizzaValidator,
     validator
 ];
 
 module.exports = {
-    INGREDIENTVALIDATORREGISTER,
+    PIZZAVALIDATOR,
 }

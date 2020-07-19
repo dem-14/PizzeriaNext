@@ -10,7 +10,6 @@ import Divider from '@material-ui/core/Divider';
 import CustomListContext from './customlistcontext';
 import { useContext } from 'react'
 
-
 const useStyles = makeStyles((theme) => ({
     cardHeader: {
         padding: theme.spacing(1, 2),
@@ -22,8 +21,6 @@ const useStyles = makeStyles((theme) => ({
         overflow: 'auto',
     },
 }));
-
-
 
 const CustomList = ({ title, items }) => {
     const classes = useStyles();
@@ -69,5 +66,4 @@ const CustomList = ({ title, items }) => {
         </Card>
     )
 };
-
 export default CustomList;

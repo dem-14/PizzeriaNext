@@ -10,6 +10,4 @@ connect.post(services(PizzaService), async (req, res) => {
     res.status(201).json(comment);
 })
 
-
-
 export default connect;

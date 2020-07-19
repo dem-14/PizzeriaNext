@@ -1,10 +1,13 @@
+import User from './user'
 const api = '/api/ingredients'
 class IngredientClient{
     async add(data){
+        const user = await User.get();
         const response = await fetch(api,{
             method:'POST',
             headers:{
-                'content-type':'application/json'
+                'content-type':'application/json',
+                'authorization': `bearer ${user.token}`
             },
             body:JSON.stringify(data)
         })
@@ -17,17 +20,21 @@ class IngredientClient{
     async remove(id){
         return await fetch(`${api}/${id}`,{
             method:'DELETE',
+            headers: {
+                'authorization': `bearer ${user.token}`
+            }
         })
     }
     async update(id,data){
-        return await fetch(`${api}/${id}`,{
+        const resolve = await fetch(`${api}/${id}`,{
             method:'PUT',
             headers:{
-                'content-type':'application/json'
+                'content-type':'application/json',
+                'authorization': `bearer ${user.token}`
             },
             body:JSON.stringify(data)
         })
-    }
+return resolve.json();    }
 }
 
 export default new IngredientClient();

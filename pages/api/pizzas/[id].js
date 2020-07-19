@@ -1,8 +1,7 @@
-// TODO crear get by id y put
-// TODO add comment pizzas/id/comments (POST)
 import handler from '../../../app/middelwares/nextconnect'
 import PizzaService from '../../../app/application/pizzaservice'
 import services from '../../../app/middelwares/service'
+import auth from '../../../app/middelwares/auth'
 
 const connect = handler();
 
@@ -12,9 +11,9 @@ connect.get(services(PizzaService), async (req, res) => {
     res.json(pizza);
 })
 
-connect.put(services(PizzaService), async (req, res) => {
+connect.put(auth('admin'), services(PizzaService), async (req, res) => {
     const pizza = await req.service.update(req.query.id, req.body);
-    res.json(pizza);
+    res.status(201).json(pizza);
 })
 
 

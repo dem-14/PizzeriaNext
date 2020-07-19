@@ -1,5 +1,5 @@
 import Input from '../components/input'
-import { USERVALIDATOLOGIN } from '../app/validators/uservalidator'
+import { USERVALIDATOREGISTER } from '../app/validators/uservalidator'
 import { getBuilderProp } from '../app/application/validatorbuilder'
 import { useForm } from 'react-hook-form'
 import { set } from 'idb-keyval';
@@ -7,12 +7,12 @@ import Router from 'next/router'
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { useState } from 'react'
-
 export default function Login() {
+
     const [send, sendState] = useState(false)
     const { handleSubmit, register, errors } = useForm();
     const validators = {
-        validator: getBuilderProp(USERVALIDATOLOGIN),
+        validator: getBuilderProp(USERVALIDATOREGISTER),
         register,
         errors
     }
@@ -20,7 +20,7 @@ export default function Login() {
     async function onSubmit(data) {
         sendState(true);
         try {
-            const response = await fetch('/api/login', {
+            const response = await fetch('/api/register', {
                 method: "POST",
                 headers: {
                     "content-type": 'application/json'
@@ -34,6 +34,7 @@ export default function Login() {
         finally {
             sendState(false);
         }
+
     }
     function linear() {
         if (send) {
@@ -45,12 +46,13 @@ export default function Login() {
         <>
             {linear()}
             <form className="container" onSubmit={handleSubmit(onSubmit)} noValidate>
+                <Input label="Name *" type="text" name="name" validators={validators} />
                 <Input label="Email *" type="text" name="email" validators={validators} />
                 <Input label="Password *" type="password" name="password" validators={validators} />
                 <div className="button-container">
                     <Button type="submit" variant="contained" color="primary">
-                        Login
-                    </Button>
+                        Register
+                </Button>
                 </div>
 
             </form>

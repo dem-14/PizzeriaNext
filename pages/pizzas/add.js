@@ -1,103 +1,119 @@
 import Head from 'next/head'
 import Layout from '../../components/layout'
-import CustomList from '../../components/customlist'
 import { useState, useEffect } from 'react'
 import IngredientService from '../../services/ingredients'
-import CustomListContext from '../../components/customlistcontext'
+import TransferList from '../../components/transferlist'
+import { useForm } from 'react-hook-form'
+import { PIZZAVALIDATOR } from '../../app/validators/pizzavalidator'
+import { getBuilderProp } from '../../app/application/validatorbuilder'
+import PizzaClient from '../../services/pizzas'
+import Input from '../../components/input'
 import Button from '@material-ui/core/Button';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import { DropzoneArea } from 'material-ui-dropzone'
+import { makeStyles } from '@material-ui/core/styles';
+import cloudinaryService from '../../services/cloudinary'
+import Router from 'next/router'
+import { set } from 'idb-keyval';
 
+
+const useStyles = makeStyles((theme) => ({
+    container: {
+        margin: 'auto',
+        display: 'grid',
+        gridTemplateRows: 'auto auto auto auto',
+        gridRowGap: '8px',
+    },
+}));
 
 export default function Add() {
+    const classes = useStyles();
+
+    const [send, sendState] = useState(false)
     const [loaded, setLoaded] = useState(false);
-    const [items, setItems] = useState([]);
-    const [selectedItems, setSeletedItems] = useState([])
-    const [checked, setChecked] = useState([]);
+    const [left, setLeft] = useState([]);
+    const [right, setRight] = useState([])
+    const [image, setImage] = useState(null);
+    const { handleSubmit, register, errors } = useForm();
+    const validators = {
+        validator: getBuilderProp(PIZZAVALIDATOR),
+        register,
+        errors
+    }
 
     useEffect(() => {
         async function getIngredients() {
             if (!loaded) {
                 const ingredients = await IngredientService.getAll();
-                setItems(ingredients);
+                setLeft(ingredients);
                 setLoaded(true);
             }
         }
         getIngredients()
     }, [])
 
-    function not(a, b) {
-        return a.filter((value) => b.indexOf(value) === -1);
-    }
-
-    function intersection(a, b) {
-        return a.filter((value) => b.indexOf(value) !== -1);
-    }
-
-    function union(a, b) {
-        return [...a, ...not(b, a)];
-    }
-
-    const handleToggle = (value) => () => {
-        const currentIndex = checked.indexOf(value);
-        const newChecked = [...checked];
-
-        if (currentIndex === -1) {
-            newChecked.push(value);
-        } else {
-            newChecked.splice(currentIndex, 1);
+    async function onSubmit(data) {
+        sendState(true);
+        try {
+            data = { ...data, ingredients: right, image: image}
+            const pizza = await PizzaClient.add(data)
+            await set('pizza', pizza)
+            Router.push('/');
         }
-
-        setChecked(newChecked);
-    };
-
-    const handleToggleAll = (items) => () => {
-        if (numberOfChecked(items) === items.length) {
-            setChecked(not(checked, items));
-        } else {
-            setChecked(union(checked, items));
+        finally {
+            sendState(false);
         }
-    };
-
-    const handleCheckedRight = () => {
-
-      };
-    
-      const handleCheckedLeft = () => {
-
-      };
-    
-
-    const numberOfChecked = (items) => intersection(checked, items).length;
-
-    const customlistcontext = { checked, handleToggle, handleToggleAll, numberOfChecked };
-
+    }
+    const transferProps = {
+        left,
+        leftTitle: "Ingredientes",
+        right,
+        rightTitle: "Utilizados",
+        setLeft,
+        setRight
+    }
+    function linear() {
+        if (send) {
+            return (<LinearProgress />)
+        }
+        return null;
+    }
+    async function uploadImage(ev) {
+        if (ev[0]) {
+            const image = await cloudinaryService.upload(ev[0])
+            setImage(image)
+            return;
+        }
+        setImage(null)
+    }
+    function handleBack() {
+        Router.back()
+    }
     return (
         <>
             <Head>
                 <title>Crear pizza</title>
             </Head>
+            {linear()}
             <Layout>
-                <CustomListContext.Provider value={customlistcontext}>
-                    <CustomList title="Ingredientes disponibles" items={items} />
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={handleCheckedRight}
-                        disabled={items.length === 0}
-                        aria-label="move selected right"
-                    >
-                        &gt;
-          </Button>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={handleCheckedLeft}
-                        disabled={selectedItems.length === 0}
-                        aria-label="move selected left"
-                    >
-                        &lt;
-          </Button>
-                    <CustomList title="Ingredientes usados" items={selectedItems} />
-                </CustomListContext.Provider>
+                <form className={classes.container} onSubmit={handleSubmit(onSubmit)} noValidate>
+                    <Input label="Nombre *" type="text" name="name" validators={validators} />
+                    <TransferList {...transferProps} />
+                    <DropzoneArea
+                        acceptedFiles={['image/*']}
+                        dropzoneText={"Arrastrar imagen o hacer click"}
+                        filesLimit={1}
+                        onChange={uploadImage}
+                    />
+                    <div className="button-container">
+                        <Button type="submit" variant="contained" color="primary">
+                            Guardar
+                        </Button>
+                        <Button variant="contained" onClick={handleBack} >
+                            Atrás
+                        </Button>
+                    </div>
+                </form>
             </Layout>
         </>
     )

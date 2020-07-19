@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import IngredientService from '../services/ingredients';
 import tableIcons from '../components/tableicon';
 
-export default function Home() {
+export default function Ingredients() {
   const [loaded, setLoaded] = useState(false);
   const [columns, _] = useState([
     {

@@ -4,15 +4,31 @@ const { NotExistsError } = require('../utils/customerrors')
 const IngredientRepository = require('../infraestructure/ingredientrepository')
 const profit = require('../utils/profit')
 const Comment = require('../domain/comment')
+const AlgoliaRepository = require('../infraestructure/algoliarepository')
 
+//TODO implement algolia update comments...
 class PizzaService {
     constructor() {
         this.repository = new PizzaRepository();
     }
     async create(dto) {
-        await this.sanitizeIngredients(dto);
-        const pizza = Pizza.create(dto);
-        return await this.repository.add(pizza)
+        try {
+            const ingredients = dto.ingredients.map(i => ({ id: i.id, name: i.name }))
+            await this.sanitizeIngredients(dto);
+            const pizza = Pizza.create(dto);
+            const algoliaPizza = {
+                name: pizza.name,
+                price: pizza.price,
+                rating: pizza.rating,
+                ingredients: ingredients,
+                image: pizza.image,
+            }
+            await AlgoliaRepository.add(pizza.id, algoliaPizza);
+            return await this.repository.add(pizza)
+        }
+        catch (e) {
+            console.log(e)
+        }
     }
     async get(id) {
         const pizza = await this.repository.get(id)
